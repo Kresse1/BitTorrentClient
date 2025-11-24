@@ -83,11 +83,46 @@ def find_working_peer(peers, info_hash, peer_id):
             peer_info = parse_handshake(peer_handshake, info_hash)
             print(f"Erfolgreicher Handshake mit {peer_ip}:{peer_port}")
             print(f"Peer ID: {peer_info['peer_id']}")
-            sock.close()
-            return
+
+            return sock, peer_info
         except Exception as e:
             print(f"Fehler: {e}")
             continue
+
+
+def recv_exact(sock, n):
+    """Empfängt exakt n bytes (robuster als sock.recv)"""
+    data = b''
+    while len(data) < n:
+        chunk = sock.recv(n-len(data))
+        if not chunk:
+            raise Exception("Connection closed")
+        data += chunk
+    return data
+
+def recieve_message(sock):
+    """
+    Empfängt eine BitTorrent-Message vom Peer.
+    
+    Parameters:
+        sock: TCP-Socket-Verbindung
+        
+    Returns:
+        tuple: (message_id: int, payload: bytes)
+    """
+
+    # Format: Bytes 0-3, Länge message, Byte 4 message_id (Typ), Bytes 5+ payload
+    length_bytes = recv_exact(sock, 4)
+    length = struct.unpack('>I', length_bytes)
+    length = length[0]
+    unpack = recv_exact(sock, length)
+
+    message_id = unpack[0]
+    payload = unpack[1:]
+
+    return  message_id, payload
+
+
 
 def main():
     torrent = torrent_file.parse_torrent_file("linuxmint-22.2-cinnamon-64bit.iso.torrent")
@@ -107,11 +142,10 @@ def main():
 
     peers = result['peers']
     print(f"Found {len(peers)} peers")
-    peer_ip, peer_port = peers[57] # Connect to this peer
-    
 
+    sock, peer_info = find_working_peer(peers, info_hash, peer_id)
+    print(recieve_message(sock))
 
-    find_working_peer(peers, info_hash, peer_id)
 
         
 
