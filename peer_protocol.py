@@ -71,6 +71,24 @@ def parse_handshake(handshake_data, info_hash_og):
     
     return dic
 
+def find_working_peer(peers, info_hash, peer_id):
+    "Probiert peers bis einer antwortet."
+
+    for peer_ip, peer_port in peers:
+        print(f"Try {peer_ip}: {peer_port}...")
+
+        try:
+            sock, peer_handshake = send_handshake(peer_ip, peer_port, info_hash, peer_id)
+            #Parse
+            peer_info = parse_handshake(peer_handshake, info_hash)
+            print(f"Erfolgreicher Handshake mit {peer_ip}:{peer_port}")
+            print(f"Peer ID: {peer_info['peer_id']}")
+            sock.close()
+            return
+        except Exception as e:
+            print(f"Fehler: {e}")
+            continue
+
 def main():
     torrent = torrent_file.parse_torrent_file("linuxmint-22.2-cinnamon-64bit.iso.torrent")
     tracker, port = torrent_file.get_tracker_and_port(torrent)
@@ -87,24 +105,14 @@ def main():
     response, addr = udp_tracker.send_request(tracker, port, packet)
     result = udp_tracker.parse_announce_response(response, trans_id)
 
-    # Hole einen Peer aus der Liste
-    peers = result['peers']  # Deine 167 Peers von vorher
-    peer_ip, peer_port = peers[9]  # Erster Peer
+    peers = result['peers']
+    print(f"Found {len(peers)} peers")
+    peer_ip, peer_port = peers[57] # Connect to this peer
     
-    # Verbinde und tausche Handshakes
-    try:
-        sock, peer_handshake = send_handshake(peer_ip, peer_port, info_hash, peer_id)
-        
-        # Parse Handshake
-        peer_info = parse_handshake(peer_handshake, info_hash)
-        
-        print(f"✅ Erfolgreicher Handshake mit {peer_ip}:{peer_port}")
-        print(f"Peer ID: {peer_info['peer_id']}")
-        
-        sock.close()
 
-    except Exception as e:
-        print(f"❌ Fehler: {e}")
+
+    find_working_peer(peers, info_hash, peer_id)
+
         
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ def parse_torrent_file(filename):
     print(f"File size: {len(data)} bytes")
     print("Starting parse...")
     
-    # Versuch erstmal NUR den Anfang zu parsen
+
     torrent_data, length = decode_dict(data.decode('latin-1'), 0)
     
     print(f"Parsed {length} characters")

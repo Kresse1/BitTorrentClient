@@ -26,7 +26,7 @@ def contact_tracker(tracker_url, info_hash, peer_id, port, uploaded, downloaded,
     if req.status_code != 200:
         raise Exception(f"Tracker error: {req.status_code}")
     
-    return req.content  # ← bytes mit Bencode!
+    return req.content  
 
 def find_working_tracker(torrent):
     info_hash = calculate_info_hash(torrent)
@@ -44,17 +44,17 @@ def find_working_tracker(torrent):
     trackers = []
     
     if 'announce-list' in torrent:
-        # Hat announce-list - nutze die
+
         for tier in torrent['announce-list']:
             for url in tier:
                 trackers.append(url)
     elif 'announce' in torrent:
-        # Hat nur announce - nutze den
+
         trackers.append(torrent['announce'])
     else:
         raise Exception("No trackers found in torrent!")
     
-    # Jetzt probiere alle Tracker
+
     for url in trackers:
         if url.startswith('udp://'):
             continue
@@ -73,9 +73,9 @@ def find_working_tracker(torrent):
 def parse_response(response):
     tracker_data, _ = decode_dict(response.decode('latin-1'), 0)
     if 'failure reason' in tracker_data:
-        raise Exception(f"❌ Tracker says: {tracker_data['failure reason']}")
+        raise Exception(f"Tracker says: {tracker_data['failure reason']}")
     else:
-        print(f"✅ Success! Got peers!")
+        print(f"Success! Got peers!")
         return tracker_data
 
 

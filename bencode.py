@@ -130,29 +130,29 @@ def test_bencode():
     # Basis-Tests
     value, length = decode_string("5:hello", 0)
     assert value == "hello" and length == 7, f"Expected ('hello', 7), got ({value}, {length})"
-    print("✅ Test 1: Einfacher String")
+    print("Test 1: Einfacher String")
     
     value, length = decode_string("0:", 0)
     assert value == "" and length == 2, f"Expected ('', 2), got ({value}, {length})"
-    print("✅ Test 2: Leerer String")
+    print("Test 2: Leerer String")
     
     value, length = decode_string("12:Hello World!", 0)
     assert value == "Hello World!" and length == 15, f"Expected ('Hello World!', 15), got ({value}, {length})"
-    print("✅ Test 3: String mit Leerzeichen und 2-stelliger Länge")
+    print("Test 3: String mit Leerzeichen und 2-stelliger Länge")
     
     value, length = decode_string("3:abc", 0)
     assert value == "abc" and length == 5, f"Expected ('abc', 5), got ({value}, {length})"
-    print("✅ Test 4: 3-Zeichen String")
+    print("Test 4: 3-Zeichen String")
     
     # Mit Offset
     value, length = decode_string("XXX5:helloYYY", 3)
     assert value == "hello" and length == 7, f"Expected ('hello', 7), got ({value}, {length})"
-    print("✅ Test 5: String mit start-Offset")
+    print("Test 5: String mit start-Offset")
     
     # Sonderzeichen
     value, length = decode_string("10:äöü!@#$%^&", 0)
     assert value == "äöü!@#$%^&" and length == 13, f"Got ({value}, {length})"
-    print("✅ Test 6: String mit Sonderzeichen")
+    print("Test 6: String mit Sonderzeichen")
     
     print("\n" + "=" * 50)
     print("TESTING decode_int")
@@ -160,24 +160,24 @@ def test_bencode():
     
     value, length = decode_int("i42e", 0)
     assert value == 42 and length == 4, f"Expected (42, 4), got ({value}, {length})"
-    print("✅ Test 7: Positiver Integer")
+    print("Test 7: Positiver Integer")
     
     value, length = decode_int("i0e", 0)
     assert value == 0 and length == 3, f"Expected (0, 3), got ({value}, {length})"
-    print("✅ Test 8: Null")
+    print("Test 8: Null")
     
     value, length = decode_int("i-42e", 0)
     assert value == -42 and length == 5, f"Expected (-42, 5), got ({value}, {length})"
-    print("✅ Test 9: Negativer Integer")
+    print("Test 9: Negativer Integer")
     
     value, length = decode_int("i123456789e", 0)
     assert value == 123456789 and length == 11, f"Expected (123456789, 11), got ({value}, {length})"
-    print("✅ Test 10: Großer Integer")
+    print("Test 10: Großer Integer")
     
     # Mit Offset
     value, length = decode_int("XXXi99eYYY", 3)
     assert value == 99 and length == 4, f"Expected (99, 4), got ({value}, {length})"
-    print("✅ Test 11: Integer mit start-Offset")
+    print("Test 11: Integer mit start-Offset")
     
     print("\n" + "=" * 50)
     print("TESTING decode_list")
@@ -185,53 +185,53 @@ def test_bencode():
     
     value, length = decode_list("le", 0)
     assert value == [] and length == 2, f"Expected ([], 2), got ({value}, {length})"
-    print("✅ Test 12: Leere Liste")
+    print("Test 12: Leere Liste")
     
     value, length = decode_list("li1ei2ei3ee", 0)
     assert value == [1, 2, 3] and length == 11, f"Expected ([1,2,3], 11), got ({value}, {length})"
-    print("✅ Test 13: Liste mit Integers")
+    print("Test 13: Liste mit Integers")
     
     value, length = decode_list("l4:spam4:eggse", 0)
     assert value == ["spam", "eggs"] and length == 14, f"Expected (['spam','eggs'], 14), got ({value}, {length})"
-    print("✅ Test 14: Liste mit Strings")
+    print("Test 14: Liste mit Strings")
     
     value, length = decode_list("li1e4:spam4:eggse", 0)
     assert value == [1, "spam", "eggs"] and length == 17, f"Expected ([1,'spam','eggs'], 17), got ({value}, {length})"
-    print("✅ Test 15: Liste mixed (int + strings)")
+    print("Test 15: Liste mixed (int + strings)")
     
     # WICHTIG: Verschachtelte Liste
     value, length = decode_list("li1el4:spame4:eggse", 0)
     assert value == [1, ["spam"], "eggs"] and length == 19, f"Expected ([1, ['spam'], 'eggs'], 19), got ({value}, {length})"
-    print("✅ Test 16: Verschachtelte Liste + Element danach")
+    print("Test 16: Verschachtelte Liste + Element danach")
     
     value, length = decode_list("ll4:spamelee", 0)
     assert value == [["spam"], []] and length == 12, f"Expected ([['spam'], []], 12), got ({value}, {length})"
-    print("✅ Test 17: Mehrere verschachtelte Listen")
+    print("Test 17: Mehrere verschachtelte Listen")
     
     value, length = decode_list("lli1eei2ee", 0)
     assert value == [[1], 2] and length == 10, f"Expected ([[1], 2], 10), got ({value}, {length})"
-    print("✅ Test 18: Verschachtelte Liste + Integer danach")
+    print("Test 18: Verschachtelte Liste + Integer danach")
     
     # Tief verschachtelt
     value, length = decode_list("llli1eeee", 0)
     assert value == [[[1]]] and length == 9, f"Expected ([[[1]]], 9), got ({value}, {length})"
-    print("✅ Test 19: Dreifach verschachtelt")
+    print("Test 19: Dreifach verschachtelt")
     
     print("\n" + "=" * 50)
-    print("🎉 ALLE TESTS BESTANDEN! 🎉")
+    print("ALLE TESTS BESTANDEN!")
     print("=" * 50)
 def test_dict():
     value, length = decode_dict("d3:cow3:mooe", 0)
     assert value == {"cow": "moo"}
-    print("✅ Dict Test 1")
+    print("Dict Test 1")
     
     value, length = decode_dict("d3:agei25e4:name4:Johne", 0)
     assert value == {"age": 25, "name": "John"}
-    print("✅ Dict Test 2")
+    print("Dict Test 2")
     
     value, length = decode_dict("d4:listli1ei2eee", 0)
     assert value == {"list": [1, 2]}
-    print("✅ Dict Test 3")
+    print("Dict Test 3")
 
 
 
