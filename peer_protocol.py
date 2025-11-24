@@ -128,6 +128,24 @@ def send_interested(sock):
     packet = struct.pack('>IB', 1, 2)
     sock.sendall(packet)
 
+def send_request(sock, piece_index, begin, block_length = 16384):
+    """
+    Fordert einen Block eines Piece an.
+    
+    Parameters:
+        sock: Socket-Verbindung
+        piece_index (int): Index der Piece
+        begin (int): Offset in der Piece
+        block_length (int): Größe des Blocks (meist 16384)
+    """
+
+    length = 13
+    message_id = 6
+    
+    packet = struct.pack('>IIIII', length, message_id, piece_index, begin, block_length)
+    sock.sendall(packet)
+
+
 def main():
     torrent = torrent_file.parse_torrent_file("linuxmint-22.2-cinnamon-64bit.iso.torrent")
     tracker, port = torrent_file.get_tracker_and_port(torrent)
@@ -156,6 +174,9 @@ def main():
 
     message_id, payload = receive_message(sock)
     print(f"Received: message_id={message_id}")
+
+    send_request(sock, 0, 0)
+    print(f"Send request for piece index {0}")
         
 
 if __name__ == "__main__":
