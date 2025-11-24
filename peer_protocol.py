@@ -142,42 +142,14 @@ def send_request(sock, piece_index, begin, block_length = 16384):
     length = 13
     message_id = 6
     
-    packet = struct.pack('>IIIII', length, message_id, piece_index, begin, block_length)
+    packet = struct.pack('>IBIII', length, message_id, piece_index, begin, block_length)
     sock.sendall(packet)
 
 
-def main():
-    torrent = torrent_file.parse_torrent_file("linuxmint-22.2-cinnamon-64bit.iso.torrent")
-    tracker, port = torrent_file.get_tracker_and_port(torrent)
-    packet, expected_transaction_id = udp_tracker.build_connect_request()
-    response, addr = udp_tracker.send_request(tracker, port, packet)
-    _, _, con_id = udp_tracker.parse_connect_response(response, expected_transaction_id)
 
-    peer_id = udp_tracker.generate_peer_id()
-    info_hash = torrent_file.calculate_info_hash(torrent['info'])
-    downloaded = 0
-    size = torrent_file.get_total_size(torrent)
-    uploaded = 0
-    packet, trans_id = udp_tracker.build_announce_request(con_id, info_hash, peer_id, downloaded, size, uploaded)
-    response, addr = udp_tracker.send_request(tracker, port, packet)
-    result = udp_tracker.parse_announce_response(response, trans_id)
-
-    peers = result['peers']
-    print(f"Found {len(peers)} peers")
-
-    sock, peer_info = find_working_peer(peers, info_hash, peer_id)
-    message_id, payload = receive_message(sock)
-    print(f"Received: message_id={message_id}, payload_len={len(payload)}")
-
-    send_interested(sock)
-    print("Sent: interested")
-
-    message_id, payload = receive_message(sock)
-    print(f"Received: message_id={message_id}")
-
-    send_request(sock, 0, 0)
-    print(f"Send request for piece index {0}")
-        
-
-if __name__ == "__main__":
-    main()
+def parse_piece(payload):
+    """Parst Piece-Message Payload"""
+    piece_index = struct.unpack('>I', payload[0:4])[0]
+    begin = struct.unpack('>I', payload[4:8])[0]
+    block_data = payload[8:]
+    return piece_index, begin, block_data

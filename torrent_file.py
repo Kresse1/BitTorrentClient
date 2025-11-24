@@ -75,6 +75,8 @@ def get_total_size(torrent_data):
         total_size = sum(f['length'] for f in info['files'])
         return total_size
     
+
+    
 #torrent = parse_torrent_file("tears-of-steel.torrent")
 #info_hash = calculate_info_hash(torrent['info'])
 #show_torrent_info(torrent)
