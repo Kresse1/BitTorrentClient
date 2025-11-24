@@ -100,7 +100,7 @@ def recv_exact(sock, n):
         data += chunk
     return data
 
-def recieve_message(sock):
+def receive_message(sock):
     """
     Empfängt eine BitTorrent-Message vom Peer.
     
@@ -122,7 +122,11 @@ def recieve_message(sock):
 
     return  message_id, payload
 
+def send_interested(sock):
+    """Sendet 'interested' Message (ID 2)"""
 
+    packet = struct.pack('>IB', 1, 2)
+    sock.sendall(packet)
 
 def main():
     torrent = torrent_file.parse_torrent_file("linuxmint-22.2-cinnamon-64bit.iso.torrent")
@@ -144,9 +148,14 @@ def main():
     print(f"Found {len(peers)} peers")
 
     sock, peer_info = find_working_peer(peers, info_hash, peer_id)
-    print(recieve_message(sock))
+    message_id, payload = receive_message(sock)
+    print(f"Received: message_id={message_id}, payload_len={len(payload)}")
 
+    send_interested(sock)
+    print("Sent: interested")
 
+    message_id, payload = receive_message(sock)
+    print(f"Received: message_id={message_id}")
         
 
 if __name__ == "__main__":
