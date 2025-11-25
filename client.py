@@ -1,7 +1,6 @@
 import torrent_file
 import udp_tracker
 import peer_protocol
-import struct
 
 def load_torrent(file):
     torrent = torrent_file.parse_torrent_file(file)
@@ -33,7 +32,8 @@ def connect_to_peer(peers, info_hash, peer_id):
     print(f"Received: message_id={message_id}, payload_len={len(payload)}")
     return sock
 
-def download_piece(sock, piece_index):
+def download_piece(sock, piece_index, torrent):
+
     peer_protocol.send_interested(sock)
     print("Sent: interested")
     
@@ -55,5 +55,14 @@ def download_piece(sock, piece_index):
                 piece_index, begin, block_data = peer_protocol.parse_piece(payload)
                 piece_data += block_data
                 break
-    return piece_data
+
+    print(f"\nPiece Data Length: {len(piece_data)} bytes")
+    print(f"Expected: {torrent['info']['piece length']} bytes")
+    pieces_hashes = torrent['info']['pieces']
+    expected_hash = pieces_hashes[piece_index*20: piece_index*20+20]
+    if peer_protocol.validate_piece(piece_data, expected_hash):
+        print("Piece ok!")
+        return piece_data
+    else:
+        raise Exception("Fehler: Hash of piece does not match the expected hash.")
         

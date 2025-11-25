@@ -1,7 +1,6 @@
 import struct
 import socket
-import udp_tracker
-import torrent_file
+import hashlib
 
 def build_handshake(info_hash, peer_id):
     """    
@@ -153,3 +152,11 @@ def parse_piece(payload):
     begin = struct.unpack('>I', payload[4:8])[0]
     block_data = payload[8:]
     return piece_index, begin, block_data
+
+
+def validate_piece(piece_data, expected_hash):
+    """Prüft ob Piece korrekt ist"""
+    actual_hash = hashlib.sha1(piece_data).digest()
+    print(f"\nExpected hash: {expected_hash.hex()}")
+    print(f"Actual hash:   {actual_hash.hex()}")
+    return actual_hash == expected_hash
