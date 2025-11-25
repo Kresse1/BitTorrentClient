@@ -70,3 +70,21 @@ def download_piece(sock, piece_index, torrent):
     else:
         raise Exception("Fehler: Hash of piece does not match the expected hash.")
         
+def download_file(sock, torrent, output_filename):
+    """
+    Downloaded alle Pieces und schreibt sie in eine Datei
+    
+    Parameters:
+        sock: Socket-Verbindung zum Peer
+        torrent: Parsed torrent dict
+        output_filename: Wo die Datei gespeichert wird
+    """
+    num_pieces = len(torrent['info']['pieces']) // 20
+
+    for piece in range(num_pieces):
+        piece_length = peer_protocol.get_piece_length(torrent, piece)
+        piece_data = download_piece(sock, piece, torrent)
+        with open(output_filename, "wb") as f:
+            f.seek(piece * piece_length)
+            f.write(piece_data)
+        print(f"Downloaded piece {piece}/{num_pieces}")
