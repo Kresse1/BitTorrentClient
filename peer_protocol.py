@@ -1,6 +1,7 @@
 import struct
 import socket
 import hashlib
+import torrent_file
 
 def build_handshake(info_hash, peer_id):
     """    
@@ -160,3 +161,20 @@ def validate_piece(piece_data, expected_hash):
     print(f"\nExpected hash: {expected_hash.hex()}")
     print(f"Actual hash:   {actual_hash.hex()}")
     return actual_hash == expected_hash
+
+def get_piece_length(torrent, piece_index):
+    """Gibt die Größe eines bestimmten Piece zurück"""
+    total_size = torrent_file.get_total_size(torrent)
+    piece_length = torrent['info']['piece length']
+    num_pieces = len(torrent['info']['pieces']) // 20
+    
+
+    if piece_index == num_pieces - 1:
+        # Letzte Piece = Rest
+        last_piece_length = total_size % piece_length
+        if last_piece_length == 0:
+            return piece_length
+        else:
+            return last_piece_length
+    else:
+        return piece_length  # Normale Piece

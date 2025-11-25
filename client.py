@@ -41,8 +41,10 @@ def download_piece(sock, piece_index, torrent):
     print(f"1. Received: message_id={message_id}")
 
     piece_data = b''
+    piece_length = peer_protocol.get_piece_length(torrent, piece_index)
+    num_blocks = (piece_length + 16383) // 16384 
 
-    for block_num in range(32):
+    for block_num in range(num_blocks):
         begin = block_num * 16384
         peer_protocol.send_request(sock, piece_index, begin)
         print(f"Send request for piece index {piece_index}")
@@ -60,6 +62,8 @@ def download_piece(sock, piece_index, torrent):
     print(f"Expected: {torrent['info']['piece length']} bytes")
     pieces_hashes = torrent['info']['pieces']
     expected_hash = pieces_hashes[piece_index*20: piece_index*20+20]
+    if isinstance(expected_hash, str):
+        expected_hash = expected_hash.encode('latin-1')
     if peer_protocol.validate_piece(piece_data, expected_hash):
         print("Piece ok!")
         return piece_data
